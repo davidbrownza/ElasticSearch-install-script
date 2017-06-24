@@ -2,6 +2,59 @@
 
 # install script for installing elasticsearch on Ubuntu. Should be run with root privileges.
 
+
+function default_options() {
+    PACKAGE=elasticsearch
+    
+    VERSION=5.4.2
+    CONFIG_DIR=/etc/elasticsearch
+    
+    HOST=127.0.0.1
+    PORT=9200
+}
+
+
+function program_options() {
+    
+    default_options
+    
+    while [ $# -gt 1 ] 
+    do
+        key="$1"
+        case $key in
+            --version)
+                VERSION=${2:-$VERSION}
+                shift # past argument=value
+                ;;
+            --host)
+                HOST=${2:-$HOST}
+                shift # past argument=value
+                ;;
+            --port)
+                PORT=${2:-$PORT}
+                shift # past argument=value
+                ;;
+            --config-dir)
+                CONFIG_DIR=${2:-$CONFIG_DIR}
+                shift # past argument=value
+                ;;
+            *)
+                # unknown option
+                echo "Unknown option: $1"
+            ;;
+        esac
+        shift 
+    done
+    
+    echo "Installing '$PACKAGE' using the following options:"
+    echo "VERSION: $VERSION"
+    echo "HOST: $HOST"
+    echo "PORT: $PORT"
+    echo "CONFIG_DIR: $CONFIG_DIR"
+    echo
+}
+
+
 function get_package_status() {
     dpkg-query -W --showformat='${Status}\n' $PACKAGE | grep "install ok installed"
 }
@@ -66,60 +119,9 @@ function get_service_status() {
     fi
 }
 
+
 function clean_up() {
     rm elasticsearch-*.deb
-}
-
-
-function default_options() {
-    PACKAGE=elasticsearch
-    
-    VERSION=5.4.2
-    CONFIG_DIR=/etc/elasticsearch
-    
-    HOST=127.0.0.1
-    PORT=9200
-}
-
-
-function program_options() {
-    
-    default_options
-    
-    while [ $# -gt 1 ] 
-    do
-        key="$1"
-        case $key in
-            --version)
-                VERSION=${2:-$VERSION}
-                shift # past argument=value
-                ;;
-            --host)
-                HOST=${2:-$HOST}
-                shift # past argument=value
-                ;;
-            --port)
-                PORT=${2:-$PORT}
-                shift # past argument=value
-                ;;
-            --config-dir)
-                CONFIG_DIR=${2:-$CONFIG_DIR}
-                shift # past argument=value
-                ;;
-            *)
-                # unknown option
-                echo "Unknown option: $1"
-            ;;
-        esac
-        shift 
-    done
-    
-    echo "Installing '$PACKAGE' using the following options:"
-    echo "VERSION: $VERSION"
-    echo "HOST: $HOST"
-    echo "PORT: $PORT"
-    echo "CONFIG_DIR: $CONFIG_DIR"
-    echo
 }
 
 
