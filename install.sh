@@ -18,7 +18,7 @@ function program_options() {
     
     default_options
     
-    while [ $# -gt 1 ] 
+    while [ $# -gt 0 ] 
     do
         key="$1"
         case $key in
@@ -38,9 +38,15 @@ function program_options() {
                 CONFIG_DIR=${2:-$CONFIG_DIR}
                 shift # past argument=value
                 ;;
+            --help)
+                usage
+                exit
+                ;;
             *)
                 # unknown option
                 echo "Unknown option: $1"
+                usage
+                exit
             ;;
         esac
         shift 
@@ -122,6 +128,15 @@ function get_service_status() {
 
 function clean_up() {
     rm elasticsearch-*.deb
+}
+
+function usage() {
+    echo "Usage: install.sh --config-dir <path> --host <host IP> --port <port> --version <version>"
+    echo "Options:"
+    echo "--config-dir: the directory the the elsaticsearch.yml config file is located in"
+    echo "--host: the IP address that elasticsearch should be served on"
+    echo "--port: the port that elasticsearch should be served on"
+    echo "--version: the version of elasticsearch that should be downloaded and installed"
 }
 
 
