@@ -8,6 +8,7 @@ function default_options() {
     
     VERSION=5.4.2
     CONFIG_DIR=/etc/elasticsearch
+    DATA_DIR=/var/lib/elasticsearch
     
     HOST=127.0.0.1
     PORT=9200
@@ -38,6 +39,10 @@ function program_options() {
                 CONFIG_DIR=${2:-$CONFIG_DIR}
                 shift # past argument=value
                 ;;
+            --data-dir)
+                DATA_DIR=${2:-$DATA_DIR}
+                shift # past argument=value
+                ;;
             --help)
                 usage
                 exit
@@ -57,7 +62,8 @@ function program_options() {
     echo "HOST: $HOST"
     echo "PORT: $PORT"
     echo "CONFIG_DIR: $CONFIG_DIR"
-    echo
+    echo "DATA_DIR: $DATA_DIR"
+    echo "###########"
 }
 
 
@@ -89,7 +95,7 @@ function install_package() {
     # download elasticsearch .deb file
     wget https://artifacts.elastic.co/downloads/elasticsearch/$PACKAGE_NAME
   
-    # install elasticsearch & configure elasticsearch to launch at start up.
+    # install elasticsearch
     dpkg -i $PACKAGE_NAME
 }
 
@@ -99,6 +105,9 @@ function configure_service() {
     update-rc.d $PACKAGE defaults
     
     cp elasticsearch.template.yml elasticsearch.yml
+    
+    echo "Setting data directory: $DATA_DIR"
+    sed -i -e 's|#path.data: %DATA_DIR%|path.data: '"$DATA_DIR"'|g' elasticsearch.yml
     
     echo "Setting binding address: $HOST"
     sed -i -e 's/#network.host: %HOST%/network.host: '"$HOST"'/g' elasticsearch.yml
@@ -131,9 +140,10 @@ function clean_up() {
 }
 
 function usage() {
-    echo "Usage: install.sh --config-dir <path> --host <host IP> --port <port> --version <version>"
+    echo "Usage: install.sh --config-dir <path> --data-dir <path> --host <host IP> --port <port> --version <version>"
     echo "Options:"
-    echo "--config-dir: the directory the the elsaticsearch.yml config file is located in"
+    echo "--config-dir: the directory that the elsaticsearch.yml config file is located in"
+    echo "--data-dir: the directory that elsaticsearch will store the data in"
     echo "--host: the IP address that elasticsearch should be served on"
     echo "--port: the port that elasticsearch should be served on"
     echo "--version: the version of elasticsearch that should be downloaded and installed"
